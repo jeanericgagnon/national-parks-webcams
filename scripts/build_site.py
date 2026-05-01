@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import csv
 import html
+import json
 import re
 import shutil
 from collections import defaultdict
@@ -73,6 +74,46 @@ PARK_NAMES = {
     "yellowstone-webcam": "Yellowstone National Park",
     "yosemite-webcam": "Yosemite National Park",
     "zion-webcam": "Zion National Park",
+}
+
+PARK_COORDS = {
+    "acadia-webcam": [44.3386, -68.2733],
+    "arches-webcam": [38.7331, -109.5925],
+    "big-bend-webcam": [29.1275, -103.2425],
+    "black-canyon-of-the-gunnison-webcam": [38.5754, -107.7416],
+    "bryce-canyon-webcam": [37.593, -112.1871],
+    "channel-islands-webcam": [34.0069, -119.7785],
+    "crater-lake-webcam": [42.9446, -122.109],
+    "denali-webcam": [63.1148, -151.1926],
+    "everglades-webcam": [25.2866, -80.8987],
+    "glacier-bay-webcam": [58.6658, -136.9002],
+    "glacier-webcam": [48.7596, -113.787],
+    "grand-canyon-webcam": [36.1069, -112.1129],
+    "grand-tetons-webcam": [43.7904, -110.6818],
+    "great-smoky-mountains-webcam": [35.6118, -83.4895],
+    "guadalupe-mountains-webcam": [31.923, -104.87],
+    "haleakala-webcam": [20.7204, -156.1552],
+    "hawaii-volcanoes-webcam": [19.4194, -155.2885],
+    "isle-royale-national-park-webcam": [48.011, -88.8278],
+    "joshua-tree-webcam": [33.8734, -115.901],
+    "katmai-webcam": [58.5975, -154.6939],
+    "kings-canyon-webcam": [36.8879, -118.5551],
+    "lassen-volcano-webcam": [40.4977, -121.4207],
+    "mammoth-cave-webcam": [37.1862, -86.1005],
+    "mount-rainier-webcam": [46.8523, -121.7603],
+    "new-river-gorge-webcam": [37.8683, -80.9996],
+    "north-cascades-webcam": [48.7718, -121.2985],
+    "olympic-webcam": [47.8021, -123.6044],
+    "petrified-forest-webcam": [35.0659, -109.781],
+    "redwood-national-park": [41.2132, -124.0046],
+    "rocky-mountain-webcam": [40.3428, -105.6836],
+    "shenandoah-webcam": [38.5339, -78.35],
+    "theodore-roosevelt-webcam": [46.979, -103.5387],
+    "virgin-islands-webcam": [18.3424, -64.7486],
+    "wrangell-st-elias-webcam": [61.7104, -142.9857],
+    "yellowstone-webcam": [44.6, -110.5],
+    "yosemite-webcam": [37.8651, -119.5383],
+    "zion-webcam": [37.2982, -113.0263],
 }
 
 
@@ -214,6 +255,14 @@ def resource_groups(resources, page_urls):
     return links, embeds, images
 
 
+def is_map_embed(embed):
+    return "maps-api-ssl.google.com" in embed["url"]
+
+
+def live_embed_count(embeds):
+    return sum(1 for embed in embeds if not is_map_embed(embed))
+
+
 def text_to_html(body):
     out = []
     opened = False
@@ -323,6 +372,7 @@ def page_shell(title, body, page_slug, pages, description, image="", depth=0):
   <meta property="og:title" content="{html.escape(title)}">
   <meta property="og:description" content="{html.escape(description[:180])}">
   {image_meta}
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <link rel="stylesheet" href="{prefix}assets/styles.css">
 </head>
 <body>
@@ -336,6 +386,7 @@ def page_shell(title, body, page_slug, pages, description, image="", depth=0):
     <p>Remade from the original National Parks Webcams Google Site. Content and links are preserved for migration review.</p>
     <a href="{prefix}resources.html">Resource inventory</a>
   </footer>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="{prefix}assets/app.js"></script>
 </body>
 </html>
@@ -350,6 +401,8 @@ def build_home(pages, content_by_url, resources_by_url):
         parsed_title, _, body = content_by_url[page["url"]]
         title = display_title(page, parsed_title)
         res = resources_by_url[page["url"]]
+        links, embeds, images = resource_groups(res, {p["url"].rstrip("/") for p in pages})
+        cam_count = live_embed_count(embeds)
         image = first_image(res)
         intro = intro_from_body(body)
         img_html = f'<img src="{html.escape(image)}" alt="" loading="lazy" onerror="this.parentElement.classList.add(\'image-missing\'); this.remove();">' if image else '<div class="image-fallback"></div>'
@@ -359,9 +412,10 @@ def build_home(pages, content_by_url, resources_by_url):
               <a href="parks/{page['slug']}.html" aria-label="Open {html.escape(title)}">
                 <div class="park-card-image">{img_html}</div>
                 <div class="park-card-body">
-                  <span>{page['embed_count']} embeds · {page['link_count']} links</span>
+                  <span>{cam_count} live cam sources · {len(embeds) - cam_count} maps</span>
                   <h2>{html.escape(short_name(title))}</h2>
                   <p>{html.escape(intro[:170])}</p>
+                  <strong class="card-action">View live cams</strong>
                 </div>
               </a>
             </article>
@@ -371,6 +425,28 @@ def build_home(pages, content_by_url, resources_by_url):
     hero_source = next((p for p in park_pages if p["slug"] == "glacier-webcam"), park_pages[0])
     hero_image = first_image(resources_by_url[hero_source["url"]]) or first_image(resources_by_url[home["url"]])
     description = intro_from_body(home_body)
+    page_urls = {p["url"].rstrip("/") for p in pages}
+    map_points = []
+    for page in park_pages:
+        links, embeds, _ = resource_groups(resources_by_url[page["url"]], page_urls)
+        cam_count = live_embed_count(embeds)
+        coords = PARK_COORDS.get(page["slug"])
+        if not coords:
+            continue
+        map_points.append(
+            {
+                "slug": page["slug"],
+                "title": short_name(page["title"]),
+                "fullTitle": page["title"],
+                "href": f"parks/{page['slug']}.html",
+                "lat": coords[0],
+                "lng": coords[1],
+                "cams": cam_count,
+                "embeds": len(embeds),
+                "links": len(links),
+            }
+        )
+    map_json = html.escape(json.dumps(map_points), quote=False)
     body = f"""
   <main>
     <section class="home-hero">
@@ -379,7 +455,7 @@ def build_home(pages, content_by_url, resources_by_url):
         <h1>National Parks Webcams</h1>
         <p>{html.escape(description)}</p>
         <div class="hero-actions">
-          <a class="button primary" href="#parks">Explore parks</a>
+          <a class="button primary" href="#parks">Find live cams</a>
           <a class="button secondary" href="resources.html">View resources</a>
         </div>
       </div>
@@ -389,19 +465,36 @@ def build_home(pages, content_by_url, resources_by_url):
     </section>
     <section class="stats-band" aria-label="Site inventory">
       <div><strong>{len(park_pages)}</strong><span>park pages</span></div>
-      <div><strong>{sum(p['embed_count'] for p in pages)}</strong><span>embedded feeds and maps</span></div>
+      <div><strong>{sum(live_embed_count(resource_groups(resources_by_url[p['url']], page_urls)[1]) for p in park_pages)}</strong><span>live cam sources</span></div>
       <div><strong>{sum(p['link_count'] for p in pages)}</strong><span>preserved links</span></div>
     </section>
     <section class="park-browser" id="parks">
       <div class="section-heading">
         <div>
-          <span class="eyebrow">Browse the collection</span>
-          <h2>Webcam Parks</h2>
+          <span class="eyebrow">Browse by location</span>
+          <h2>Live Cam Map</h2>
         </div>
         <label class="search-box">
           <span>Search</span>
           <input type="search" id="park-search" placeholder="Yellowstone, Acadia, Zion...">
         </label>
+      </div>
+      <div class="map-explorer">
+        <div id="webcam-map" class="webcam-map" aria-label="Interactive national park webcam map"></div>
+        <aside class="map-side">
+          <span class="eyebrow">Featured live cams</span>
+          <h3 id="map-active-title">Select a park</h3>
+          <p id="map-active-meta">Choose a marker or a park below to jump straight to its webcam page.</p>
+          <a id="map-active-link" class="button primary" href="#parks">Open park cams</a>
+          <div class="map-list" id="map-list"></div>
+        </aside>
+      </div>
+      <script type="application/json" id="park-map-data">{map_json}</script>
+      <div class="section-heading park-grid-heading">
+        <div>
+          <span class="eyebrow">All webcam pages</span>
+          <h2>Park Directory</h2>
+        </div>
       </div>
       <div class="park-grid" id="park-grid">{''.join(cards)}</div>
     </section>
@@ -414,6 +507,7 @@ def build_park_page(page, pages, content, resources, page_urls):
     parsed_title, source, body = content
     title = display_title(page, parsed_title)
     links, embeds, images = resource_groups(resources, page_urls)
+    cam_count = live_embed_count(embeds)
     hero = first_image(resources)
     intro = intro_from_body(body)
     hero_img_html = (
@@ -434,18 +528,26 @@ def build_park_page(page, pages, content, resources, page_urls):
         <h1>{html.escape(title)}</h1>
         <p>{html.escape(intro)}</p>
         <div class="page-metrics">
-          <span>{len(embeds)} embeds</span>
+          <span>{cam_count} live cam sources</span>
+          <span>{len(embeds) - cam_count} maps</span>
           <span>{len(links)} useful links</span>
           <span>{len(images)} photos</span>
         </div>
       </div>
     </section>
+    <section class="resource-section live-first" id="live-cams">
+      <div class="section-heading">
+        <div><span class="eyebrow">Watch first</span><h2>Live Cams & Maps</h2></div>
+        <a class="button secondary" href="{html.escape(source)}" target="_blank" rel="noopener">Original page</a>
+      </div>
+      <div class="embed-grid">{render_embed_cards(embeds)}</div>
+    </section>
     <div class="page-layout">
       <article class="page-content">{text_to_html(body)}</article>
       <aside class="resource-panel">
         <div class="panel-card">
-          <h2>Live Feeds & Maps</h2>
-          <p>Direct videos and maps are embedded below. Hidden Google Sites embeds are flagged for replacement.</p>
+          <h2>Webcam Migration Notes</h2>
+          <p>Direct videos and maps are featured above. Hidden Google Sites embeds are flagged for replacement with direct webcam sources.</p>
           <a href="{html.escape(source)}" target="_blank" rel="noopener">Original page</a>
         </div>
         {f'<div class="photo-strip">{image_strip}</div>' if image_strip else ''}
@@ -453,11 +555,9 @@ def build_park_page(page, pages, content, resources, page_urls):
     </div>
     <section class="resource-section">
       <div class="section-heading">
-        <div><span class="eyebrow">Preserved page resources</span><h2>Feeds, Maps, Photos & Links</h2></div>
+        <div><span class="eyebrow">Planning resources</span><h2>Helpful Links</h2></div>
       </div>
-      <div class="embed-grid">{render_embed_cards(embeds)}</div>
       <div class="links-panel">
-        <h2>Helpful Links</h2>
         <ul>{render_link_list(links)}</ul>
       </div>
     </section>

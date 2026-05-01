@@ -8,6 +8,7 @@
   <meta property="og:title" content="National Parks Webcams">
   <meta property="og:description" content="Welcome to the National Park website. We hope you enjoy the National Parks as much as we do. We have links to our favorite hikes, campgrounds, lodging, restuarants, stores, etc. Th">
   <meta property="og:image" content="https://lh3.googleusercontent.com/docsubipk/AP9E6xXAv2NqmiiDT-ziS351gKEJHKV74i3hHzVdU1XuLnpGuIRlpjV6269jS5sdFVx1DT65f8WXZGsuyNSYL8zzuEnOJWvG6gh3xoYLmC_AxF2IbsbF3thUUfLwlFcBeUGVPbZV08QNaGzBKTjBhMhPmTyu9bcjg7bmT81bsWL8aJal2INIRSa15OA">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <link rel="stylesheet" href="assets/styles.css">
 </head>
 <body>
@@ -26,7 +27,7 @@
         <h1>National Parks Webcams</h1>
         <p>Welcome to the National Park website. We hope you enjoy the National Parks as much as we do. We have links to our favorite hikes, campgrounds, lodging, restuarants, stores, etc. The National Park Service also provides a wage range of webcams throughout the United States Park System. These live webcams allow you to get up close to wildlife without disturbing them.</p>
         <div class="hero-actions">
-          <a class="button primary" href="#parks">Explore parks</a>
+          <a class="button primary" href="#parks">Find live cams</a>
           <a class="button secondary" href="resources.html">View resources</a>
         </div>
       </div>
@@ -36,28 +37,46 @@
     </section>
     <section class="stats-band" aria-label="Site inventory">
       <div><strong>37</strong><span>park pages</span></div>
-      <div><strong>282</strong><span>embedded feeds and maps</span></div>
+      <div><strong>243</strong><span>live cam sources</span></div>
       <div><strong>2187</strong><span>preserved links</span></div>
     </section>
     <section class="park-browser" id="parks">
       <div class="section-heading">
         <div>
-          <span class="eyebrow">Browse the collection</span>
-          <h2>Webcam Parks</h2>
+          <span class="eyebrow">Browse by location</span>
+          <h2>Live Cam Map</h2>
         </div>
         <label class="search-box">
           <span>Search</span>
           <input type="search" id="park-search" placeholder="Yellowstone, Acadia, Zion...">
         </label>
       </div>
+      <div class="map-explorer">
+        <div id="webcam-map" class="webcam-map" aria-label="Interactive national park webcam map"></div>
+        <aside class="map-side">
+          <span class="eyebrow">Featured live cams</span>
+          <h3 id="map-active-title">Select a park</h3>
+          <p id="map-active-meta">Choose a marker or a park below to jump straight to its webcam page.</p>
+          <a id="map-active-link" class="button primary" href="#parks">Open park cams</a>
+          <div class="map-list" id="map-list"></div>
+        </aside>
+      </div>
+      <script type="application/json" id="park-map-data">[{"slug": "acadia-webcam", "title": "Acadia", "fullTitle": "Acadia National Park Webcams", "href": "parks/acadia-webcam.html", "lat": 44.3386, "lng": -68.2733, "cams": 8, "embeds": 9, "links": 14}, {"slug": "arches-webcam", "title": "Arches", "fullTitle": "Arches National Park Webcams", "href": "parks/arches-webcam.html", "lat": 38.7331, "lng": -109.5925, "cams": 6, "embeds": 7, "links": 11}, {"slug": "big-bend-webcam", "title": "Big Bend", "fullTitle": "Big Bend National Park Webcams", "href": "parks/big-bend-webcam.html", "lat": 29.1275, "lng": -103.2425, "cams": 3, "embeds": 4, "links": 18}, {"slug": "black-canyon-of-the-gunnison-webcam", "title": "Black Canyon of the Gunnison", "fullTitle": "Black Canyon of the Gunnison National Park Webcams", "href": "parks/black-canyon-of-the-gunnison-webcam.html", "lat": 38.5754, "lng": -107.7416, "cams": 4, "embeds": 5, "links": 9}, {"slug": "bryce-canyon-webcam", "title": "Bryce Canyon", "fullTitle": "Bryce Canyon National Park Webcams", "href": "parks/bryce-canyon-webcam.html", "lat": 37.593, "lng": -112.1871, "cams": 4, "embeds": 5, "links": 27}, {"slug": "channel-islands-webcam", "title": "Channel Islands", "fullTitle": "Channel Islands National Park Webcams", "href": "parks/channel-islands-webcam.html", "lat": 34.0069, "lng": -119.7785, "cams": 8, "embeds": 9, "links": 6}, {"slug": "crater-lake-webcam", "title": "Crater Lake", "fullTitle": "Crater Lake National Park Webcams", "href": "parks/crater-lake-webcam.html", "lat": 42.9446, "lng": -122.109, "cams": 5, "embeds": 6, "links": 12}, {"slug": "denali-webcam", "title": "Denali", "fullTitle": "Denali National Park Webcams", "href": "parks/denali-webcam.html", "lat": 63.1148, "lng": -151.1926, "cams": 6, "embeds": 7, "links": 8}, {"slug": "everglades-webcam", "title": "Everglades", "fullTitle": "Everglades National Park Webcams", "href": "parks/everglades-webcam.html", "lat": 25.2866, "lng": -80.8987, "cams": 3, "embeds": 4, "links": 13}, {"slug": "glacier-bay-webcam", "title": "Glacier Bay", "fullTitle": "Glacier Bay National Park Webcams", "href": "parks/glacier-bay-webcam.html", "lat": 58.6658, "lng": -136.9002, "cams": 6, "embeds": 7, "links": 7}, {"slug": "glacier-webcam", "title": "Glacier", "fullTitle": "Glacier National Park Webcams", "href": "parks/glacier-webcam.html", "lat": 48.7596, "lng": -113.787, "cams": 16, "embeds": 17, "links": 38}, {"slug": "grand-canyon-webcam", "title": "Grand Canyon", "fullTitle": "Grand Canyon National Park Webcams", "href": "parks/grand-canyon-webcam.html", "lat": 36.1069, "lng": -112.1129, "cams": 8, "embeds": 9, "links": 32}, {"slug": "grand-tetons-webcam", "title": "Grand Teton", "fullTitle": "Grand Teton National Park Webcams", "href": "parks/grand-tetons-webcam.html", "lat": 43.7904, "lng": -110.6818, "cams": 8, "embeds": 9, "links": 37}, {"slug": "great-smoky-mountains-webcam", "title": "Great Smoky Mountains", "fullTitle": "Great Smoky Mountains National Park Webcams", "href": "parks/great-smoky-mountains-webcam.html", "lat": 35.6118, "lng": -83.4895, "cams": 8, "embeds": 9, "links": 19}, {"slug": "guadalupe-mountains-webcam", "title": "Guadalupe Mountains", "fullTitle": "Guadalupe Mountains National Park Webcams", "href": "parks/guadalupe-mountains-webcam.html", "lat": 31.923, "lng": -104.87, "cams": 5, "embeds": 6, "links": 12}, {"slug": "haleakala-webcam", "title": "Haleakala", "fullTitle": "Haleakala National Park Webcams", "href": "parks/haleakala-webcam.html", "lat": 20.7204, "lng": -156.1552, "cams": 3, "embeds": 4, "links": 11}, {"slug": "hawaii-volcanoes-webcam", "title": "Hawaii Volcanoes", "fullTitle": "Hawaii Volcanoes National Park Webcams", "href": "parks/hawaii-volcanoes-webcam.html", "lat": 19.4194, "lng": -155.2885, "cams": 22, "embeds": 23, "links": 35}, {"slug": "isle-royale-national-park-webcam", "title": "Isle Royale", "fullTitle": "Isle Royale National Park Webcams", "href": "parks/isle-royale-national-park-webcam.html", "lat": 48.011, "lng": -88.8278, "cams": 11, "embeds": 12, "links": 21}, {"slug": "joshua-tree-webcam", "title": "Joshua Tree", "fullTitle": "Joshua Tree National Park Webcams", "href": "parks/joshua-tree-webcam.html", "lat": 33.8734, "lng": -115.901, "cams": 3, "embeds": 4, "links": 18}, {"slug": "katmai-webcam", "title": "Katmai", "fullTitle": "Katmai National Park Webcams", "href": "parks/katmai-webcam.html", "lat": 58.5975, "lng": -154.6939, "cams": 10, "embeds": 11, "links": 10}, {"slug": "kings-canyon-webcam", "title": "Sequoia and Kings Canyon", "fullTitle": "Sequoia and Kings Canyon National Parks Webcams", "href": "parks/kings-canyon-webcam.html", "lat": 36.8879, "lng": -118.5551, "cams": 3, "embeds": 4, "links": 27}, {"slug": "lassen-volcano-webcam", "title": "Lassen Volcanic", "fullTitle": "Lassen Volcanic National Park Webcams", "href": "parks/lassen-volcano-webcam.html", "lat": 40.4977, "lng": -121.4207, "cams": 3, "embeds": 4, "links": 22}, {"slug": "mammoth-cave-webcam", "title": "Mammoth Cave", "fullTitle": "Mammoth Cave National Park Webcams", "href": "parks/mammoth-cave-webcam.html", "lat": 37.1862, "lng": -86.1005, "cams": 3, "embeds": 4, "links": 17}, {"slug": "mount-rainier-webcam", "title": "Mount Rainier", "fullTitle": "Mount Rainier National Park Webcams", "href": "parks/mount-rainier-webcam.html", "lat": 46.8523, "lng": -121.7603, "cams": 14, "embeds": 15, "links": 24}, {"slug": "new-river-gorge-webcam", "title": "New River Gorge", "fullTitle": "New River Gorge National Park Webcams", "href": "parks/new-river-gorge-webcam.html", "lat": 37.8683, "lng": -80.9996, "cams": 3, "embeds": 4, "links": 22}, {"slug": "north-cascades-webcam", "title": "North Cascades", "fullTitle": "North Cascades National Park Webcams", "href": "parks/north-cascades-webcam.html", "lat": 48.7718, "lng": -121.2985, "cams": 3, "embeds": 4, "links": 19}, {"slug": "olympic-webcam", "title": "Olympic", "fullTitle": "Olympic National Park Webcams", "href": "parks/olympic-webcam.html", "lat": 47.8021, "lng": -123.6044, "cams": 8, "embeds": 9, "links": 20}, {"slug": "petrified-forest-webcam", "title": "Petrified Forest", "fullTitle": "Petrified Forest National Park Webcams", "href": "parks/petrified-forest-webcam.html", "lat": 35.0659, "lng": -109.781, "cams": 3, "embeds": 4, "links": 4}, {"slug": "redwood-national-park", "title": "Redwood", "fullTitle": "Redwood National and State Parks Webcams", "href": "parks/redwood-national-park.html", "lat": 41.2132, "lng": -124.0046, "cams": 5, "embeds": 6, "links": 12}, {"slug": "rocky-mountain-webcam", "title": "Rocky Mountain", "fullTitle": "Rocky Mountain National Park Webcams", "href": "parks/rocky-mountain-webcam.html", "lat": 40.3428, "lng": -105.6836, "cams": 9, "embeds": 10, "links": 14}, {"slug": "shenandoah-webcam", "title": "Shenandoah", "fullTitle": "Shenandoah National Park Webcams", "href": "parks/shenandoah-webcam.html", "lat": 38.5339, "lng": -78.35, "cams": 4, "embeds": 5, "links": 31}, {"slug": "theodore-roosevelt-webcam", "title": "Theodore Roosevelt", "fullTitle": "Theodore Roosevelt National Park Webcams", "href": "parks/theodore-roosevelt-webcam.html", "lat": 46.979, "lng": -103.5387, "cams": 3, "embeds": 4, "links": 14}, {"slug": "virgin-islands-webcam", "title": "Virgin Islands", "fullTitle": "Virgin Islands National Park Webcams", "href": "parks/virgin-islands-webcam.html", "lat": 18.3424, "lng": -64.7486, "cams": 3, "embeds": 4, "links": 6}, {"slug": "wrangell-st-elias-webcam", "title": "Wrangell-St. Elias", "fullTitle": "Wrangell-St. Elias National Park Webcams", "href": "parks/wrangell-st-elias-webcam.html", "lat": 61.7104, "lng": -142.9857, "cams": 5, "embeds": 6, "links": 24}, {"slug": "yellowstone-webcam", "title": "Yellowstone", "fullTitle": "Yellowstone National Park Webcams", "href": "parks/yellowstone-webcam.html", "lat": 44.6, "lng": -110.5, "cams": 14, "embeds": 15, "links": 33}, {"slug": "yosemite-webcam", "title": "Yosemite", "fullTitle": "Yosemite National Park Webcams", "href": "parks/yosemite-webcam.html", "lat": 37.8651, "lng": -119.5383, "cams": 10, "embeds": 11, "links": 34}, {"slug": "zion-webcam", "title": "Zion", "fullTitle": "Zion National Park Webcams", "href": "parks/zion-webcam.html", "lat": 37.2982, "lng": -113.0263, "cams": 3, "embeds": 4, "links": 14}]</script>
+      <div class="section-heading park-grid-heading">
+        <div>
+          <span class="eyebrow">All webcam pages</span>
+          <h2>Park Directory</h2>
+        </div>
+      </div>
       <div class="park-grid" id="park-grid">
             <article class="park-card" data-title="acadia national park webcams">
               <a href="parks/acadia-webcam.html" aria-label="Open Acadia National Park Webcams">
                 <div class="park-card-image"><img src="https://lh3.googleusercontent.com/docsubipk/AP9E6xX8LQErFq8ni5iS5qWl_np7cKXOGXwKe6Djm1st7gSxpBYEiPoP4wwJV4PLMLAzbT6SFom8hqxdYd7P1RUrSXj6I3FrlyAQIuyOL0v6e2k6cC7gNZJv9s9-p26cy8VIQ2NqmSaRePVaTCOrkPkuTq_q0d4vat-0p8sRVPn-3q0qfx1dwpiEng" alt="" loading="lazy" onerror="this.parentElement.classList.add('image-missing'); this.remove();"></div>
                 <div class="park-card-body">
-                  <span>9 embeds · 53 links</span>
+                  <span>8 live cam sources · 1 maps</span>
                   <h2>Acadia</h2>
                   <p>Acadia National Park (U.S. National Park Service) Acadia National Park protects the natural beauty of the highest rocky headlands along the Atlantic coastline of the Unit</p>
+                  <strong class="card-action">View live cams</strong>
                 </div>
               </a>
             </article>
@@ -66,9 +85,10 @@
               <a href="parks/arches-webcam.html" aria-label="Open Arches National Park Webcams">
                 <div class="park-card-image"><img src="https://lh3.googleusercontent.com/docsubipk/AP9E6xVQLekb3s4nQYN1iIbhhDa2dpFbtuABN5gx8-kEzyufCZx-Xno3I4MZtGBknfKA2ivlSqmGnAtJRmXYasR68k-ayLjXKhl1vrpyPdY2iQss6Aq9W2ShVDkwAoNyxeXy_DMjLo2w-MJlAKQYDK9ZAuegT_JYMrSx5bNasgxw3G4DT5XzkhqmLD0" alt="" loading="lazy" onerror="this.parentElement.classList.add('image-missing'); this.remove();"></div>
                 <div class="park-card-body">
-                  <span>7 embeds · 50 links</span>
+                  <span>6 live cam sources · 1 maps</span>
                   <h2>Arches</h2>
                   <p>Arches National Park has a rich history dating back millions of years. Approximately 300 million years ago, inland seas covered the region. These seas repeatedly refilled</p>
+                  <strong class="card-action">View live cams</strong>
                 </div>
               </a>
             </article>
@@ -77,9 +97,10 @@
               <a href="parks/big-bend-webcam.html" aria-label="Open Big Bend National Park Webcams">
                 <div class="park-card-image"><img src="https://lh3.googleusercontent.com/docsubipk/AP9E6xWdEoS36EeNFa_pJowhBL2bVb29gOLJQklNuFN-HbDhxoy2yLfiLfBn0mj3P5SnPAZxokulexDop4zQn5tAY-FXQnmndwe-fKTi6EW53W8EK-G2MmsBqfcufJtGof1_kv-usgJ8hi3flFJb-S_b27W3wwUDl8YwPA3eMcEHoNbxK3yTtez-Q9E" alt="" loading="lazy" onerror="this.parentElement.classList.add('image-missing'); this.remove();"></div>
                 <div class="park-card-body">
-                  <span>4 embeds · 57 links</span>
+                  <span>3 live cam sources · 1 maps</span>
                   <h2>Big Bend</h2>
                   <p>Big Bend National Park, located in southwestern Texas along the Texas-Mexico border, is a haven for nature enthusiasts, hikers, and adventurers. This vast and remote park</p>
+                  <strong class="card-action">View live cams</strong>
                 </div>
               </a>
             </article>
@@ -88,9 +109,10 @@
               <a href="parks/black-canyon-of-the-gunnison-webcam.html" aria-label="Open Black Canyon of the Gunnison National Park Webcams">
                 <div class="park-card-image"><img src="https://lh3.googleusercontent.com/docsubipk/AP9E6xVAJGHvna5lm3m6GfqWBMPIeD_JcuBYxzlpvT9v_kJhl3bPEnu9K6BX4W5wFHu0xnNQTtx_pqiTxGg_nLBd3ieymM7Kf8cLWkqDtCN6bKe7AFdxaFoLeIENSWaWW9XlMk5erzjoyeyZpzywngFRfdISwAOMeN5IGCr78TdIwvkZ3mhRbhXHpOA" alt="" loading="lazy" onerror="this.parentElement.classList.add('image-missing'); this.remove();"></div>
                 <div class="park-card-body">
-                  <span>5 embeds · 48 links</span>
+                  <span>4 live cam sources · 1 maps</span>
                   <h2>Black Canyon of the Gunnison</h2>
                   <p>Black Canyon Of The Gunnison National Park (U.S. National Park Service) Big enough to be overwhelming, still intimate enough to feel the pulse of time, Black Canyon of th</p>
+                  <strong class="card-action">View live cams</strong>
                 </div>
               </a>
             </article>
@@ -99,9 +121,10 @@
               <a href="parks/bryce-canyon-webcam.html" aria-label="Open Bryce Canyon National Park Webcams">
                 <div class="park-card-image"><img src="https://lh3.googleusercontent.com/docsubipk/AP9E6xXnyY4cMzn8N-UHRAI110uHy91mDAQeMT1H1gnzZFjDP2NURRzFxsYf-zqijFHmm8QYTbyThakA7PLUIe9sEUQgb3sS9wIPjsqfcuUcZLa7Kih6lt38-hFZh8idP9F5Gb6rQ7-ofXxL5jIxVezzuvlsv6TL6foFpyJf9W-S7A2B5qjInIqZlg" alt="" loading="lazy" onerror="this.parentElement.classList.add('image-missing'); this.remove();"></div>
                 <div class="park-card-body">
-                  <span>5 embeds · 66 links</span>
+                  <span>4 live cam sources · 1 maps</span>
                   <h2>Bryce Canyon</h2>
                   <p>Bryce Canyon National Park (U.S. National Park Service) Hoodoos (irregular columns of rock) exist on every continent, but here is the largest concentration found anywhere</p>
+                  <strong class="card-action">View live cams</strong>
                 </div>
               </a>
             </article>
@@ -110,9 +133,10 @@
               <a href="parks/channel-islands-webcam.html" aria-label="Open Channel Islands National Park Webcams">
                 <div class="park-card-image"><img src="https://lh3.googleusercontent.com/docsubipk/AP9E6xWeQQEsB-yi6l08W0nFgbO4oSN-ZGoANIEW1ZxefRgGi3xMRLhsVKZL4tJWo5gOysUoGlaJLOQg3sL61r6QlcxS6LM7vYPa2sIg9rRQaAPyn234IMRBy96WcG5cUAVV6BeCQLIRUiyl7bDqFG5ahsdttI5WBeeRftK_MEHtfud2mGdS4fGjDQk" alt="" loading="lazy" onerror="this.parentElement.classList.add('image-missing'); this.remove();"></div>
                 <div class="park-card-body">
-                  <span>9 embeds · 45 links</span>
+                  <span>8 live cam sources · 1 maps</span>
                   <h2>Channel Islands</h2>
                   <p>Channel Islands National Park (U.S. National Park Service) Channel Islands National Park encompasses five remarkable islands and their ocean environment, preserving and p</p>
+                  <strong class="card-action">View live cams</strong>
                 </div>
               </a>
             </article>
@@ -121,9 +145,10 @@
               <a href="parks/crater-lake-webcam.html" aria-label="Open Crater Lake National Park Webcams">
                 <div class="park-card-image"><img src="https://lh3.googleusercontent.com/docsubipk/AP9E6xXL0ohPoDBbOnZs7PtNZcftPTmuhmcaobNulS1d4NXMGWp38IouMBAwLt4k4FjPClSu6667HvGCCfhMfjIYBRTkYMcL2k8snZk5ZUQ642Pv6J89lalgirnhth3STZLoml9TfBHM6WhYkYiJUIuxpUOme_TxU136a1BbFoD5MSxxX0TxBmBUdUY" alt="" loading="lazy" onerror="this.parentElement.classList.add('image-missing'); this.remove();"></div>
                 <div class="park-card-body">
-                  <span>6 embeds · 51 links</span>
+                  <span>5 live cam sources · 1 maps</span>
                   <h2>Crater Lake</h2>
                   <p>Crater Lake National Park (U.S. National Park Service) Crater Lake inspires awe. Native Americans witnessed its formation 7,700 years ago, when a violent eruption trigger</p>
+                  <strong class="card-action">View live cams</strong>
                 </div>
               </a>
             </article>
@@ -132,9 +157,10 @@
               <a href="parks/denali-webcam.html" aria-label="Open Denali National Park Webcams">
                 <div class="park-card-image"><img src="https://lh3.googleusercontent.com/docsubipk/AP9E6xWvjYBE9Mh98wixRQ-CU8TlxABT3YRX6sGA5Gd600GHK1FYclR3bIgjNKSpCdV2zy4YMCphToLauaBNiwOMX7au8D6p_XJamEKvFwIxuZ5uPnqz3qYTgYzGAAzKR3CrXE8Fl-bH7V7uy5sNB6XX_uD08hhrdmejvQzaiy-mSzK4TV2BqOnDB1o" alt="" loading="lazy" onerror="this.parentElement.classList.add('image-missing'); this.remove();"></div>
                 <div class="park-card-body">
-                  <span>7 embeds · 47 links</span>
+                  <span>6 live cam sources · 1 maps</span>
                   <h2>Denali</h2>
                   <p>Denali National Park &amp; Preserve (U.S. National Park Service) Denali is six million acres of wild land, bisected by one ribbon of road. Travelers along it see the relative</p>
+                  <strong class="card-action">View live cams</strong>
                 </div>
               </a>
             </article>
@@ -143,9 +169,10 @@
               <a href="parks/everglades-webcam.html" aria-label="Open Everglades National Park Webcams">
                 <div class="park-card-image"><img src="https://lh3.googleusercontent.com/docsubipk/AP9E6xVPMD_WZ6fb55kUwXLbUezQTY8Ei0G2CnT2PWyg3bY8Rv85RxOQRBUVdk0WoGf2QQF6AMELl1bpVWhAqr-pxz0pA_3imjei-Ys2Nv2btyCqukBtIJ3GATg1DF5C67fIR7XairEzWE8hlnQuWL8CakueLt9OdxAlihRA54HP5DmpjvMGwkq1Glo" alt="" loading="lazy" onerror="this.parentElement.classList.add('image-missing'); this.remove();"></div>
                 <div class="park-card-body">
-                  <span>4 embeds · 52 links</span>
+                  <span>3 live cam sources · 1 maps</span>
                   <h2>Everglades</h2>
                   <p>Everglades National Park (U.S. National Park Service) Everglades National Park protects an unparalleled landscape that provides important habitat for numerous rare and en</p>
+                  <strong class="card-action">View live cams</strong>
                 </div>
               </a>
             </article>
@@ -154,9 +181,10 @@
               <a href="parks/glacier-bay-webcam.html" aria-label="Open Glacier Bay National Park Webcams">
                 <div class="park-card-image"><img src="https://lh3.googleusercontent.com/docsubipk/AP9E6xUNx6h5ZTlMzeHruOrvZjuXbti777ylst25CQYFSLBxF7mWmuDJ36cKx0jR4AZ0cW6DkrB0NJ4fDkKsgiynflrqrOjgnrsAu-QokRr2F67itf14XRj_s0f6OOznrvm0MaHk-K3Tbq7rPSIdK1uo_f_morOq-c5W7DJtjpRju8YjX58fCEI3_wY" alt="" loading="lazy" onerror="this.parentElement.classList.add('image-missing'); this.remove();"></div>
                 <div class="park-card-body">
-                  <span>7 embeds · 46 links</span>
+                  <span>6 live cam sources · 1 maps</span>
                   <h2>Glacier Bay</h2>
                   <p>V iew of Bartlett Cove and the Fairweather range. Bartlett Cove is east of the national park</p>
+                  <strong class="card-action">View live cams</strong>
                 </div>
               </a>
             </article>
@@ -165,9 +193,10 @@
               <a href="parks/glacier-webcam.html" aria-label="Open Glacier National Park Webcams">
                 <div class="park-card-image"><img src="https://lh3.googleusercontent.com/docsubipk/AP9E6xXAv2NqmiiDT-ziS351gKEJHKV74i3hHzVdU1XuLnpGuIRlpjV6269jS5sdFVx1DT65f8WXZGsuyNSYL8zzuEnOJWvG6gh3xoYLmC_AxF2IbsbF3thUUfLwlFcBeUGVPbZV08QNaGzBKTjBhMhPmTyu9bcjg7bmT81bsWL8aJal2INIRSa15OA" alt="" loading="lazy" onerror="this.parentElement.classList.add('image-missing'); this.remove();"></div>
                 <div class="park-card-body">
-                  <span>17 embeds · 77 links</span>
+                  <span>16 live cam sources · 1 maps</span>
                   <h2>Glacier</h2>
                   <p>Glacier National Park (U.S. National Park Service) A showcase of melting glaciers, alpine meadows, carved valleys, and spectacular lakes. With over 700 miles of trails, G</p>
+                  <strong class="card-action">View live cams</strong>
                 </div>
               </a>
             </article>
@@ -176,9 +205,10 @@
               <a href="parks/grand-canyon-webcam.html" aria-label="Open Grand Canyon National Park Webcams">
                 <div class="park-card-image"><img src="https://lh3.googleusercontent.com/docsubipk/AP9E6xUQnc0qJsIbx5wDp2Dd03Tr3-e6TUPaAifI7xDoaISo0UKSdeTlv1qLbkpgarXgfYxz3Hpyl2CMQz7N4dADx_kARXWaO6GQpzglfVUr3qRGBl-OlTceOOaj4hSWOHbRC6ybdtPlB5Lnq5-GZ5OFXsvEkEW5i-9LuyP9AkpXPmNOV_VBvpNyzLM" alt="" loading="lazy" onerror="this.parentElement.classList.add('image-missing'); this.remove();"></div>
                 <div class="park-card-body">
-                  <span>9 embeds · 71 links</span>
+                  <span>8 live cam sources · 1 maps</span>
                   <h2>Grand Canyon</h2>
                   <p>Grand Canyon National Park (U.S. National Park Service) Grand Canyon National Park, in Northern Arizona, encompasses 278 miles (447 km) of the Colorado River and adjacent</p>
+                  <strong class="card-action">View live cams</strong>
                 </div>
               </a>
             </article>
@@ -187,9 +217,10 @@
               <a href="parks/grand-tetons-webcam.html" aria-label="Open Grand Teton National Park Webcams">
                 <div class="park-card-image"><img src="https://lh3.googleusercontent.com/docsubipk/AP9E6xV3YDOdsL7kmoaYCIvTr4AEqgzts1uzxxAxOSYhWB-CRHmbKOfYDfQxnS2w_WIIxzUhOKepO3V9d4JO7hKaDl39UApbXwe1-qPyZ2eMbh55iAYtCc_Rr4uxJlL4_OnVdGPJKJxo1-eE6JL3ZsGtjybR78n_leqKhupb8l1YwWsz9zLHe9GfFw" alt="" loading="lazy" onerror="this.parentElement.classList.add('image-missing'); this.remove();"></div>
                 <div class="park-card-body">
-                  <span>9 embeds · 76 links</span>
+                  <span>8 live cam sources · 1 maps</span>
                   <h2>Grand Teton</h2>
                   <p>Grand Teton National Park (U.S. National Park Service) Rising above a scene rich with extraordinary wildlife, pristine lakes, and alpine terrain, the Teton Range stands a</p>
+                  <strong class="card-action">View live cams</strong>
                 </div>
               </a>
             </article>
@@ -198,9 +229,10 @@
               <a href="parks/great-smoky-mountains-webcam.html" aria-label="Open Great Smoky Mountains National Park Webcams">
                 <div class="park-card-image"><img src="https://lh3.googleusercontent.com/docsubipk/AP9E6xWk3xbxmjf5dhVNHVuXb4b_OPTMkvJiUBlXQsQwO-wGE0gAZcqDA8DtWR41WEIExuDzQNiVjdBKoJ6eDByqU7bfsr2CvaeHdh0PpiICDlVzAvHFr9sS-OscyrNvJeAEOP8fq5stYgLQ7aD4ChxWia4IJ93UZneAnNyP8eQCkPBJnegISKcs4kU" alt="" loading="lazy" onerror="this.parentElement.classList.add('image-missing'); this.remove();"></div>
                 <div class="park-card-body">
-                  <span>9 embeds · 58 links</span>
+                  <span>8 live cam sources · 1 maps</span>
                   <h2>Great Smoky Mountains</h2>
                   <p>Great Smoky Mountains National Park (U.S. National Park Service) Ridge upon ridge of forest straddles the border between North Carolina and Tennessee in Great Smoky Mount</p>
+                  <strong class="card-action">View live cams</strong>
                 </div>
               </a>
             </article>
@@ -209,9 +241,10 @@
               <a href="parks/guadalupe-mountains-webcam.html" aria-label="Open Guadalupe Mountains National Park Webcams">
                 <div class="park-card-image"><img src="https://lh3.googleusercontent.com/docsubipk/AP9E6xVKcv_mWZTWVyFkEsApz8ZwM3gejotpaY-5tPMxRmD0yXKDYSM7yxhVkRAmMU9RiIPLlGqhkummK26PHsoFS5iGrb-FHuu65tKUZaTDUla1vNCQX9U7OsTJ19LbXF-hjn2va6FXVNngvQTGohcj7muccIXu53tMjhQDyTZ2gGWsG04AxE9gpQ" alt="" loading="lazy" onerror="this.parentElement.classList.add('image-missing'); this.remove();"></div>
                 <div class="park-card-body">
-                  <span>6 embeds · 51 links</span>
+                  <span>5 live cam sources · 1 maps</span>
                   <h2>Guadalupe Mountains</h2>
                   <p>Guadalupe Mountains National Park (U.S. National Park Service) Come experience mountains and canyons, desert and dunes, night skies and spectacular vistas within a place </p>
+                  <strong class="card-action">View live cams</strong>
                 </div>
               </a>
             </article>
@@ -220,9 +253,10 @@
               <a href="parks/haleakala-webcam.html" aria-label="Open Haleakala National Park Webcams">
                 <div class="park-card-image"><img src="https://lh3.googleusercontent.com/docsubipk/AP9E6xX3RdOTnhIi6w-1Q-NZWgvU9k-Wy0Zer0dRwdfriW-NDCPMLt-FWfCZK8RQGC7CBahiBaPQrAMg2R-EpChTcCGWJcX1-5Qr3-XK7q8OyKn8gn8fSaIEUAOxBtbDS6VReAA3HjmqHkVF290tFUMh9Nx2jYAUapCHT7GseMO574vZDw585KszIcs" alt="" loading="lazy" onerror="this.parentElement.classList.add('image-missing'); this.remove();"></div>
                 <div class="park-card-body">
-                  <span>4 embeds · 50 links</span>
+                  <span>3 live cam sources · 1 maps</span>
                   <h2>Haleakala</h2>
                   <p>Haleakalā National Park (U.S. National Park Service) This special place vibrates with stories of ancient and modern Hawaiian culture and protects the bond between the lan</p>
+                  <strong class="card-action">View live cams</strong>
                 </div>
               </a>
             </article>
@@ -231,9 +265,10 @@
               <a href="parks/hawaii-volcanoes-webcam.html" aria-label="Open Hawaii Volcanoes National Park Webcams">
                 <div class="park-card-image"><img src="https://lh3.googleusercontent.com/docsubipk/AP9E6xVg4grQimrBCICqoFJaygy4_Jp-IR6CNYAtFL5pnaLfd0fwzR21nrMPxWA_KrGVW4r3ocN99g6Ug7bstPIE2cupLhZGTqJYFtpo58cqnwfHC1vtnuumVKO_meK1qbBwiFkveY6cMxZje5tKQgEi3b2or3dpLYolEqufpVBBWRYY0rYaB5J7ZW0" alt="" loading="lazy" onerror="this.parentElement.classList.add('image-missing'); this.remove();"></div>
                 <div class="park-card-body">
-                  <span>23 embeds · 74 links</span>
+                  <span>22 live cam sources · 1 maps</span>
                   <h2>Hawaii Volcanoes</h2>
                   <p>Hawaiʻi Volcanoes National Park (U.S. National Park Service) Hawai‘i Volcanoes National Park protects some of the most unique geological, biological, and cherished cultur</p>
+                  <strong class="card-action">View live cams</strong>
                 </div>
               </a>
             </article>
@@ -242,9 +277,10 @@
               <a href="parks/isle-royale-national-park-webcam.html" aria-label="Open Isle Royale National Park Webcams">
                 <div class="park-card-image"><img src="https://lh3.googleusercontent.com/docsubipk/AP9E6xU-yoh2Q5wNWhS_TgMV2ikyX2JDEq0aCHb25dtiUXQbQewTxP47yf0cKMCZ7hVkOCHLXQ8Nageu8Jsp0XEehSpKsTrhBt8ak9o6IG8-x6kmV_j8z4mRQk2JINF1zXL8kgQC1_ghbvUY6w00loCsiHw6jTvXh8lilwomZa4uisTfBN2DSEMKMg" alt="" loading="lazy" onerror="this.parentElement.classList.add('image-missing'); this.remove();"></div>
                 <div class="park-card-body">
-                  <span>12 embeds · 60 links</span>
+                  <span>11 live cam sources · 1 maps</span>
                   <h2>Isle Royale</h2>
                   <p>Isle Royale National Park (U.S. National Park Service) Explore a rugged, isolated island far from our connected communities. Isle Royale offers adventures for backpackers</p>
+                  <strong class="card-action">View live cams</strong>
                 </div>
               </a>
             </article>
@@ -253,9 +289,10 @@
               <a href="parks/joshua-tree-webcam.html" aria-label="Open Joshua Tree National Park Webcams">
                 <div class="park-card-image"><img src="https://lh3.googleusercontent.com/docsubipk/AP9E6xXlXD3jfSt_esOBXzX9LyLOunt9EnYNgTceo2RFDQiMp4ZXWVkheqX63YthJpk1t-55dHSEsg8heaRBqsofyBtmIJk5LLTzePHxUpvX_qYnZl4TUh_sBSt43Wh_vd-8FvyEWYb4A0tJsHwUvFDJcZ2F5DrWVwP0baRd-lK_ctzgNB0JfTdk" alt="" loading="lazy" onerror="this.parentElement.classList.add('image-missing'); this.remove();"></div>
                 <div class="park-card-body">
-                  <span>4 embeds · 57 links</span>
+                  <span>3 live cam sources · 1 maps</span>
                   <h2>Joshua Tree</h2>
                   <p>Joshua Tree National Park (U.S. National Park Service) Two distinct desert ecosystems, the Mojave and the Colorado, come together in Joshua Tree National Park. A fascinat</p>
+                  <strong class="card-action">View live cams</strong>
                 </div>
               </a>
             </article>
@@ -264,9 +301,10 @@
               <a href="parks/katmai-webcam.html" aria-label="Open Katmai National Park Webcams">
                 <div class="park-card-image"><img src="https://lh3.googleusercontent.com/docsubipk/AP9E6xXFPqde6fc-ipDjMJYP-aQ9KwFRgAgfq4H_S1jK7Y3-1NN-wXWlo6fWoX97m3vcEYNNGSuPJfs3qTQkeu6dD_RqZF4D4u2l8YYoZ4Rx4YkOTHlOXy-hqzFK8-DG6QS3ehHk4pzo3KSUfOgMDINt4DtNf2BQZsycw80WiqwGhtIkaBcFO4C7Dg" alt="" loading="lazy" onerror="this.parentElement.classList.add('image-missing'); this.remove();"></div>
                 <div class="park-card-body">
-                  <span>11 embeds · 49 links</span>
+                  <span>10 live cam sources · 1 maps</span>
                   <h2>Katmai</h2>
                   <p>Katmai National Park &amp; Preserve (U.S. National Park Service) A landscape is alive underneath our feet, filled with creatures that remind us what it is to be wild. &lt; br / </p>
+                  <strong class="card-action">View live cams</strong>
                 </div>
               </a>
             </article>
@@ -275,9 +313,10 @@
               <a href="parks/kings-canyon-webcam.html" aria-label="Open Sequoia and Kings Canyon National Parks Webcams">
                 <div class="park-card-image"><img src="https://lh3.googleusercontent.com/docsubipk/AP9E6xVdNKOY2TMcyC8MCIdo6OEATHCX2_s9oQiUIfpzfHfCPILjJxUWnTnKmOV9XMzEWWvMssnzIURAZ4sBVNXUO99jSxSNlRT6nZyo55ROwHPCv_DYVyMQ42Axz_20JnbgIcGvszzg705UPkipzhIt3jX5wQlSa78KEr3wVI9FeMJ7qlwuRiNxAQ" alt="" loading="lazy" onerror="this.parentElement.classList.add('image-missing'); this.remove();"></div>
                 <div class="park-card-body">
-                  <span>4 embeds · 66 links</span>
+                  <span>3 live cam sources · 1 maps</span>
                   <h2>Sequoia and Kings Canyon</h2>
                   <p>Sequoia &amp; Kings Canyon National Parks (U.S. National Park Service) Huge mountains, rugged foothills, deep canyons, vast caverns, and the world’s largest trees exemplify t</p>
+                  <strong class="card-action">View live cams</strong>
                 </div>
               </a>
             </article>
@@ -286,9 +325,10 @@
               <a href="parks/lassen-volcano-webcam.html" aria-label="Open Lassen Volcanic National Park Webcams">
                 <div class="park-card-image"><img src="https://lh3.googleusercontent.com/docsubipk/AP9E6xWp9_auWFROC5Q3hMbaYQQ3atbr9Eu6beYJPbX1W9UC3fKMTEA6QUb6KyZ1IBJoM84_T_u13SqYd5IP1fN8gjouBT41qGv5oTJjln9QKUzRCsqS0AD6MDcRFLen_ZtzBAQC6ptUY_q6uo3y-bwniqJ13gJ-Sqeu2uG6eng3EvbQM_eipXVQuz8" alt="" loading="lazy" onerror="this.parentElement.classList.add('image-missing'); this.remove();"></div>
                 <div class="park-card-body">
-                  <span>4 embeds · 61 links</span>
+                  <span>3 live cam sources · 1 maps</span>
                   <h2>Lassen Volcanic</h2>
                   <p>Lassen Volcanic National Park (U.S. National Park Service) Lassen Volcanic National Park is home to steaming fumaroles, meadows freckled with wildflowers, clear mountain </p>
+                  <strong class="card-action">View live cams</strong>
                 </div>
               </a>
             </article>
@@ -297,9 +337,10 @@
               <a href="parks/mammoth-cave-webcam.html" aria-label="Open Mammoth Cave National Park Webcams">
                 <div class="park-card-image"><img src="https://lh3.googleusercontent.com/docsubipk/AP9E6xXXn3_GNzW3dOEFelWuAm2lhq5AoBM05v1Hj4DpQZ1paZSumueI0nOfPjJ0nn8LNTVwp2UtJQ0ffliElZZLTpO43mlKZZSojHcRBAVDHC8hFR90-jtoGokO0MgCVyl8obnY41UjG8XFMmhG1sjwfs1pXXlp9hsOcNiheqNjtYE18mvHc4VF840" alt="" loading="lazy" onerror="this.parentElement.classList.add('image-missing'); this.remove();"></div>
                 <div class="park-card-body">
-                  <span>4 embeds · 56 links</span>
+                  <span>3 live cam sources · 1 maps</span>
                   <h2>Mammoth Cave</h2>
                   <p>Mammoth Cave National Park (U.S. National Park Service) Rolling hills, deep river valleys, and the world&#x27;s longest known cave system. Mammoth Cave National Park is home t</p>
+                  <strong class="card-action">View live cams</strong>
                 </div>
               </a>
             </article>
@@ -308,9 +349,10 @@
               <a href="parks/mount-rainier-webcam.html" aria-label="Open Mount Rainier National Park Webcams">
                 <div class="park-card-image"><img src="https://lh3.googleusercontent.com/docsubipk/AP9E6xXQiSDBjYpv2s7lanI6hNzOl6gwjiO4t3e0svE3mzbUCtzeMLWdcS84Xwqji1fHu81PLuuLo-uSytnO742gycB_JOBfj_BnmzhQDsBz43dQdGWAR9ZQ1AjP3N0VJ6n-xVDndQVJPIiYISo3zMtEt06Q5N0f1mS2o8c-lbOlo6tx8kbMPDu_2g" alt="" loading="lazy" onerror="this.parentElement.classList.add('image-missing'); this.remove();"></div>
                 <div class="park-card-body">
-                  <span>15 embeds · 63 links</span>
+                  <span>14 live cam sources · 1 maps</span>
                   <h2>Mount Rainier</h2>
                   <p>Mount Rainier National Park (U.S. National Park Service) Ascending to 14,410 feet above sea level, Mount Rainier stands as an icon in the Washington landscape. An active </p>
+                  <strong class="card-action">View live cams</strong>
                 </div>
               </a>
             </article>
@@ -319,9 +361,10 @@
               <a href="parks/new-river-gorge-webcam.html" aria-label="Open New River Gorge National Park Webcams">
                 <div class="park-card-image"><img src="https://lh3.googleusercontent.com/docsubipk/AP9E6xXyYtnams5XQ8At7fo_WxsnVXZVjyXpNMccvliR4EYr7rR0Hxbs9PjK3VgkfxJFcSpUvAtah09sSvK6CC6ULJ2RtT3vGwljC3fW-MKEsLYkhSu9-EeL5xjVpM8cRnVZQNjFJClOypNr5BWTgusUFTrqKfxPCgDGSustpz4ZEHX_eG5p2g-w0Q" alt="" loading="lazy" onerror="this.parentElement.classList.add('image-missing'); this.remove();"></div>
                 <div class="park-card-body">
-                  <span>4 embeds · 61 links</span>
+                  <span>3 live cam sources · 1 maps</span>
                   <h2>New River Gorge</h2>
                   <p>New River Gorge National Park &amp; Preserve (U.S. National Park Service) A rugged, whitewater river flowing northward through deep canyons, the New River is among the oldest</p>
+                  <strong class="card-action">View live cams</strong>
                 </div>
               </a>
             </article>
@@ -330,9 +373,10 @@
               <a href="parks/north-cascades-webcam.html" aria-label="Open North Cascades National Park Webcams">
                 <div class="park-card-image"><img src="https://lh3.googleusercontent.com/docsubipk/AP9E6xW8LtAutR50UczvNoEYJ2fZDocT7Dwmvfo6orjde5DPi-IKBGMnf4yWNRyt1quooYHcIp-8IxvvmmYl5qt6wNBS4n6isWYa3j9iRtsF8Ori_wuc2NrjCX20_ei63aDwYsYLK9w5w9C4CBT7yPybqR21Wg6eiIE4BW7Zf3ZVKljkfiQ9-RSxO9s" alt="" loading="lazy" onerror="this.parentElement.classList.add('image-missing'); this.remove();"></div>
                 <div class="park-card-body">
-                  <span>4 embeds · 58 links</span>
+                  <span>3 live cam sources · 1 maps</span>
                   <h2>North Cascades</h2>
                   <p>North Cascades National Park (U.S. National Park Service) Less than three hours from Seattle, an alpine landscape beckons. Discover communities of life adapted to moistur</p>
+                  <strong class="card-action">View live cams</strong>
                 </div>
               </a>
             </article>
@@ -341,9 +385,10 @@
               <a href="parks/olympic-webcam.html" aria-label="Open Olympic National Park Webcams">
                 <div class="park-card-image"><img src="https://lh3.googleusercontent.com/docsubipk/AP9E6xUPyPgLXAFk9x00lW-Wuo3_6_Ov-Rc7Tsv7l8jOsR8VsIDinNDH4xWRZfCnsBRDVK_cgY5ocX2Qj6Z7v07z_BLxUb6dUi15BDjR3HEnozfYyQ5ZzsQdVVjMR00w5cx_Rh54pzdW-neEKMnWpSMJlxHY580XnASCeFnosvChcs_Bgs4M6h1uCWI" alt="" loading="lazy" onerror="this.parentElement.classList.add('image-missing'); this.remove();"></div>
                 <div class="park-card-body">
-                  <span>9 embeds · 59 links</span>
+                  <span>8 live cam sources · 1 maps</span>
                   <h2>Olympic</h2>
                   <p>Olympic National Park (U.S. National Park Service) With its incredible range of precipitation and elevation, diversity is the hallmark of Olympic National Park. Encompass</p>
+                  <strong class="card-action">View live cams</strong>
                 </div>
               </a>
             </article>
@@ -352,9 +397,10 @@
               <a href="parks/petrified-forest-webcam.html" aria-label="Open Petrified Forest National Park Webcams">
                 <div class="park-card-image"><img src="https://lh3.googleusercontent.com/docsubipk/AP9E6xXICxX-gWF3wHS3OHKXHChgXtTqOOy_1xfcHd_DjwfawkmVdTOOlPpshzHn09V149Yrxtfa-etrPluiwcJuXCKbDDDKtRwOqKaVw24Tpc54LDNduXdmJ63ddGFlWKDvl-snSOd69kfk58fdn-xUVYsQGazMgPV358AZ5oCKFTPzq89IK2pKPks" alt="" loading="lazy" onerror="this.parentElement.classList.add('image-missing'); this.remove();"></div>
                 <div class="park-card-body">
-                  <span>4 embeds · 43 links</span>
+                  <span>3 live cam sources · 1 maps</span>
                   <h2>Petrified Forest</h2>
                   <p>Petrified Forest National Park (U.S. National Park Service) Park Hours: 8am to 5pm, MST. Don&#x27;t forget that Arizona does not observe Daylight Savings. &lt; br / &gt; &lt; br / &gt; Pe</p>
+                  <strong class="card-action">View live cams</strong>
                 </div>
               </a>
             </article>
@@ -363,9 +409,10 @@
               <a href="parks/redwood-national-park.html" aria-label="Open Redwood National and State Parks Webcams">
                 <div class="park-card-image"><img src="https://lh3.googleusercontent.com/docsubipk/AP9E6xWq4Yyge00nZcktJ7HJXo7QqHhBqaHBmMXhM06g9eyD4wczQBTnQfnPM63XvC2-hf_belFB1epiNnw-8VS82TKvhwZ_d67Uxl7pv8iYIjUmQ0fUFwlqyhi4MKNCGR1IWZlBh84gwvyJya_pbuUgTcYCZ6En4E_epkWBbb_euXZxp09cPJJukAM" alt="" loading="lazy" onerror="this.parentElement.classList.add('image-missing'); this.remove();"></div>
                 <div class="park-card-body">
-                  <span>6 embeds · 51 links</span>
+                  <span>5 live cam sources · 1 maps</span>
                   <h2>Redwood</h2>
                   <p>Redwood National and State Parks (U.S. National Park Service) Renowned for the world’s tallest trees, Redwood’s landscapes span from open prairies and oak woodlands to pr</p>
+                  <strong class="card-action">View live cams</strong>
                 </div>
               </a>
             </article>
@@ -374,9 +421,10 @@
               <a href="parks/rocky-mountain-webcam.html" aria-label="Open Rocky Mountain National Park Webcams">
                 <div class="park-card-image"><img src="https://lh3.googleusercontent.com/docsubipk/AP9E6xXQvCWpBjtRA0rkzF1YPiYRtHH9-F2oI5R5liWSyox-6Lx0DY9y7P5V-NwU28dWKLcsm450D9PUxUl17bMJAEuLN_M3LXp-7NVQCA_SVmLVB7ARN_t6wzGySDqArN4kGXz7wgEyktRsrmu4pv61jBiqb-fqCdOLLLo7pjZAaoPV0Zg13U9L-w8" alt="" loading="lazy" onerror="this.parentElement.classList.add('image-missing'); this.remove();"></div>
                 <div class="park-card-body">
-                  <span>10 embeds · 53 links</span>
+                  <span>9 live cam sources · 1 maps</span>
                   <h2>Rocky Mountain</h2>
                   <p>Rocky Mountain National Park (U.S. National Park Service) Rocky Mountain National Park&#x27;s 415 square miles (265,807 acres) encompasses a spectacular range of mountain envi</p>
+                  <strong class="card-action">View live cams</strong>
                 </div>
               </a>
             </article>
@@ -385,9 +433,10 @@
               <a href="parks/shenandoah-webcam.html" aria-label="Open Shenandoah National Park Webcams">
                 <div class="park-card-image"><img src="https://lh3.googleusercontent.com/docsubipk/AP9E6xV5KRTHGVmPz6lEpYZVHHNGKpHDD0K6wMpgZOi7pTzaNXxm66VUqpiHMJNkx5Qwa5-Yy97hTrGDC2xTzvSjBHAJXZcYlMMlPaLHZHmJIAVzPDd4azJmSA8uiFFa-0_HyAvtXqKcyfFC48Zi6s2Q2isk_ipLtjCozFlLbmPjVRmyKhNe-YjftHg" alt="" loading="lazy" onerror="this.parentElement.classList.add('image-missing'); this.remove();"></div>
                 <div class="park-card-body">
-                  <span>5 embeds · 70 links</span>
+                  <span>4 live cam sources · 1 maps</span>
                   <h2>Shenandoah</h2>
                   <p>Shenandoah National Park (U.S. National Park Service) Just 75 miles from the bustle of Washington, D.C., Shenandoah National Park is a land bursting with cascading waterf</p>
+                  <strong class="card-action">View live cams</strong>
                 </div>
               </a>
             </article>
@@ -396,9 +445,10 @@
               <a href="parks/theodore-roosevelt-webcam.html" aria-label="Open Theodore Roosevelt National Park Webcams">
                 <div class="park-card-image"><img src="https://lh3.googleusercontent.com/docsubipk/AP9E6xXuFgnzqT8hMNjh7YLhkDpAR27tWnzN_aL5z5N0FcLm4DcdiKqDj18Yx3Bq7p8Hes66Y5x26nQKpr37Xw6d3Z41e38Fk58cj3--m3IpK1VJ67IVbAcUdOCytmkAdc-n9JGosVAukHENeP5z42rW59uDgjMtjd-RkOLQl9SgQi7GoO47G5anGjU" alt="" loading="lazy" onerror="this.parentElement.classList.add('image-missing'); this.remove();"></div>
                 <div class="park-card-body">
-                  <span>4 embeds · 53 links</span>
+                  <span>3 live cam sources · 1 maps</span>
                   <h2>Theodore Roosevelt</h2>
                   <p>Theodore Roosevelt National Park (U.S. National Park Service) When Theodore Roosevelt came to Dakota Territory to hunt bison in 1883, he was a skinny, young, spectacled d</p>
+                  <strong class="card-action">View live cams</strong>
                 </div>
               </a>
             </article>
@@ -407,9 +457,10 @@
               <a href="parks/virgin-islands-webcam.html" aria-label="Open Virgin Islands National Park Webcams">
                 <div class="park-card-image"><img src="https://lh3.googleusercontent.com/docsubipk/AP9E6xUa__B6lb1DGV0OhNLfZSKQejptW9g0-AWbKMcIw4k5dnT3tJmY_tNCdRr2EvOO0e9PAyf29exbxYr04uNYV4jpV1bThty_7-YXjt33LF5KZuGFkt0bSM02sceG-97C81-6g6MmLfR7ifiIxwIeB2xvVKKczTQiINqdwHjZ86payOWp-6UJlP8" alt="" loading="lazy" onerror="this.parentElement.classList.add('image-missing'); this.remove();"></div>
                 <div class="park-card-body">
-                  <span>4 embeds · 45 links</span>
+                  <span>3 live cam sources · 1 maps</span>
                   <h2>Virgin Islands</h2>
                   <p>The Virgin Islands National Park preserves approximately 60% of the land area, an area of approximately 14,737 acres (59.64 square kilometers) of Saint John in the United</p>
+                  <strong class="card-action">View live cams</strong>
                 </div>
               </a>
             </article>
@@ -418,9 +469,10 @@
               <a href="parks/wrangell-st-elias-webcam.html" aria-label="Open Wrangell-St. Elias National Park Webcams">
                 <div class="park-card-image"><img src="https://lh3.googleusercontent.com/docsubipk/AP9E6xVqp6_dPPsLaoLfjfJ9bruhjuR4IrIMMwysWaP1iwOb4gE7a9zNi-JjrpcppXmcBEGymZCcuVGHoGZxPZgPOtQHFQMNIDxVAz02yAGjfXRZBFAtJONiV_-wtumKe9hf4oNfLCtzqFiksD0WOUMR59mJpcowyWShjrZ3KpDQeYPCHxyG4YPw7Fw" alt="" loading="lazy" onerror="this.parentElement.classList.add('image-missing'); this.remove();"></div>
                 <div class="park-card-body">
-                  <span>6 embeds · 64 links</span>
+                  <span>5 live cam sources · 1 maps</span>
                   <h2>Wrangell-St. Elias</h2>
                   <p>Eastern v iew from the Copper Center Visitor Center toward the Wrangell Mountains (currently inactive)</p>
+                  <strong class="card-action">View live cams</strong>
                 </div>
               </a>
             </article>
@@ -429,9 +481,10 @@
               <a href="parks/yellowstone-webcam.html" aria-label="Open Yellowstone National Park Webcams">
                 <div class="park-card-image"><img src="https://lh3.googleusercontent.com/docsubipk/AP9E6xWUZTBD2c4g0y_y2M-r77ZgRsnzzKVtYDE8k1ciiuvMmObKp9pNM4t_48m-AdFtflvGgK0VZMARdzoLAB6AQAF3BFozTy-oa7bWAgUkjj36-ap2R1_Umm_Kc4bNdH4" alt="" loading="lazy" onerror="this.parentElement.classList.add('image-missing'); this.remove();"></div>
                 <div class="park-card-body">
-                  <span>15 embeds · 72 links</span>
+                  <span>14 live cam sources · 1 maps</span>
                   <h2>Yellowstone</h2>
                   <p>Yellowstone National Park (U.S. National Park Service) On March 1, 1872, Yellowstone became the first national park for all to enjoy the unique hydrothermal and geologic </p>
+                  <strong class="card-action">View live cams</strong>
                 </div>
               </a>
             </article>
@@ -440,9 +493,10 @@
               <a href="parks/yosemite-webcam.html" aria-label="Open Yosemite National Park Webcams">
                 <div class="park-card-image"><img src="https://lh3.googleusercontent.com/docsubipk/AP9E6xUBSOTQcJ2Eiu__fDXCviYtY4AQWD2uEzxKY-1sJ5QRGEVJ-yv6f6beomcT2cORVSVavbDUxFKUcn0pv7CVdRXyQlqNBFpG7Bzql1aAPGsNEx5NrdDnnMHIDZcQ-KBsSv2Suqje4je6NxegDAcPzp6Lz6y_wfTKG6jTQHFBxHG9IIs9RTiR4w" alt="" loading="lazy" onerror="this.parentElement.classList.add('image-missing'); this.remove();"></div>
                 <div class="park-card-body">
-                  <span>11 embeds · 73 links</span>
+                  <span>10 live cam sources · 1 maps</span>
                   <h2>Yosemite</h2>
                   <p>Yosemite National Park (U.S. National Park Service) Not just a great valley, but a shrine to human foresight, the strength of granite, the power of glaciers, the persiste</p>
+                  <strong class="card-action">View live cams</strong>
                 </div>
               </a>
             </article>
@@ -451,9 +505,10 @@
               <a href="parks/zion-webcam.html" aria-label="Open Zion National Park Webcams">
                 <div class="park-card-image"><img src="https://lh3.googleusercontent.com/docsubipk/AP9E6xXWhFsui53u3H6xejWifLUQBsUUQ53QmlwYIJHFubYojUxRJKRISH-oL3KzOxxH0DvR-6IytE7v02PCvRq39iB8JNtzMabzkYug7dS7pX_uVkxvw-wve__5L3ympFO2a_A2OYvJzy4ZvgME73DHIUdjjF9CpSKbrS6fqWvM_pejRtTr1xBPvg" alt="" loading="lazy" onerror="this.parentElement.classList.add('image-missing'); this.remove();"></div>
                 <div class="park-card-body">
-                  <span>4 embeds · 53 links</span>
+                  <span>3 live cam sources · 1 maps</span>
                   <h2>Zion</h2>
                   <p>Zion National Park (U.S. National Park Service) Follow the paths where people have walked for thousands of years. Gaze up at massive sandstone cliffs of cream, pink, and </p>
+                  <strong class="card-action">View live cams</strong>
                 </div>
               </a>
             </article>
@@ -465,6 +520,7 @@
     <p>Remade from the original National Parks Webcams Google Site. Content and links are preserved for migration review.</p>
     <a href="resources.html">Resource inventory</a>
   </footer>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="assets/app.js"></script>
 </body>
 </html>
