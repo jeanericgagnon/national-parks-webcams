@@ -176,6 +176,17 @@ def load_resources():
     return resources
 
 
+def load_webcam_sources():
+    path = EXPORT / "webcam_sources.csv"
+    sources = defaultdict(list)
+    if not path.exists():
+        return sources
+    with path.open(newline="", encoding="utf-8") as f:
+        for row in csv.DictReader(f):
+            sources[row["slug"]].append(dict(row))
+    return sources
+
+
 def parse_markdown(path):
     lines = path.read_text(encoding="utf-8").splitlines()
     title = lines[0].lstrip("# ").strip()
@@ -297,7 +308,29 @@ def youtube_id(url):
     return match.group(1) if match else ""
 
 
-def render_embed_cards(embeds):
+def render_webcam_source_cards(webcam_sources):
+    cards = []
+    for source in webcam_sources:
+        title = html.escape(source["title"])
+        url = html.escape(source["url"])
+        page_url = html.escape(source["page_url"])
+        provider = html.escape(source["provider"])
+        status = html.escape(source["status"])
+        cards.append(
+            f"""
+            <article class="embed-card webcam-image-card">
+              <a class="webcam-image-link" href="{page_url}" target="_blank" rel="noopener">
+                <img src="{url}" data-refresh-src="{url}" alt="{title}" loading="lazy" onerror="this.closest('.webcam-image-card').classList.add('image-missing'); this.remove();">
+              </a>
+              <div class="embed-meta"><span>{provider}</span><strong>{title}</strong><p>{status}</p></div>
+            </article>
+            """
+        )
+    return cards
+
+
+def render_embed_cards(embeds, webcam_sources=None):
+    webcam_sources = webcam_sources or []
     cards = []
     missing = []
     for embed in embeds:
@@ -325,6 +358,8 @@ def render_embed_cards(embeds):
             )
         elif url.startswith("google-sites-frame:"):
             missing.append((label, html.escape(url.replace("google-sites-frame:", ""))))
+    cards.extend(render_webcam_source_cards(webcam_sources))
+    missing = missing[len(webcam_sources):]
     if missing:
         items = "".join(f"<li><strong>{label}</strong><code>{identifier}</code></li>" for label, identifier in missing)
         cards.append(
@@ -467,7 +502,7 @@ def page_shell(title, body, page_slug, pages, description, image="", depth=0):
 """
 
 
-def build_home(pages, content_by_url, resources_by_url):
+def build_home(pages, content_by_url, resources_by_url, webcam_sources_by_slug):
     home = next(p for p in pages if p["slug"] == "national-park-webcam-home")
     park_pages = [p for p in pages if p["slug"] != "national-park-webcam-home"]
     cards = []
@@ -476,7 +511,7 @@ def build_home(pages, content_by_url, resources_by_url):
         title = display_title(page, parsed_title)
         res = resources_by_url[page["url"]]
         links, embeds, images = resource_groups(res, {p["url"].rstrip("/") for p in pages})
-        cam_count = live_embed_count(embeds)
+        cam_count = live_embed_count(embeds) + len(webcam_sources_by_slug.get(page["slug"], []))
         image = first_image(res)
         intro = intro_from_body(body)
         img_html = f'<img src="{html.escape(image)}" alt="" loading="lazy" onerror="this.parentElement.classList.add(\'image-missing\'); this.remove();">' if image else '<div class="image-fallback"></div>'
@@ -504,7 +539,7 @@ def build_home(pages, content_by_url, resources_by_url):
     map_points = []
     for page in park_pages:
         links, embeds, _ = resource_groups(resources_by_url[page["url"]], page_urls)
-        cam_count = live_embed_count(embeds)
+        cam_count = live_embed_count(embeds) + len(webcam_sources_by_slug.get(page["slug"], []))
         coords = PARK_COORDS.get(page["slug"])
         if not coords:
             continue
@@ -539,7 +574,7 @@ def build_home(pages, content_by_url, resources_by_url):
     </section>
     <section class="stats-band" aria-label="Site inventory">
       <div><strong>{len(park_pages)}</strong><span>park pages</span></div>
-      <div><strong>{sum(live_embed_count(resource_groups(resources_by_url[p['url']], page_urls)[1]) for p in park_pages)}</strong><span>live cam sources</span></div>
+      <div><strong>{sum(live_embed_count(resource_groups(resources_by_url[p['url']], page_urls)[1]) + len(webcam_sources_by_slug.get(p['slug'], [])) for p in park_pages)}</strong><span>live cam sources</span></div>
       <div><strong>1</strong><span>interactive park map</span></div>
     </section>
     <section class="park-browser" id="parks">
@@ -577,11 +612,11 @@ def build_home(pages, content_by_url, resources_by_url):
     return page_shell("National Parks Webcams", body, home["slug"], pages, description, hero_image, 0)
 
 
-def build_park_page(page, pages, content, resources, page_urls):
+def build_park_page(page, pages, content, resources, page_urls, webcam_sources):
     parsed_title, source, body = content
     title = display_title(page, parsed_title)
     links, embeds, images = resource_groups(resources, page_urls)
-    cam_count = live_embed_count(embeds)
+    cam_count = live_embed_count(embeds) + len(webcam_sources)
     hero = first_image(resources)
     intro = intro_from_body(body)
     coords = PARK_COORDS.get(page["slug"], ["", ""])
@@ -616,7 +651,7 @@ def build_park_page(page, pages, content, resources, page_urls):
         <div><span class="eyebrow">Watch first</span><h2>Live Cams & Maps</h2></div>
         <a class="button secondary" href="{html.escape(source)}" target="_blank" rel="noopener">Original page</a>
       </div>
-      <div class="embed-grid">{render_embed_cards(embeds)}</div>
+      <div class="embed-grid">{render_embed_cards(embeds, webcam_sources)}</div>
     </section>
     <section class="weather-section" {weather_attrs}>
       <div class="section-heading">
@@ -660,6 +695,7 @@ def build_park_page(page, pages, content, resources, page_urls):
 def main():
     pages = load_pages()
     resources_by_url = load_resources()
+    webcam_sources_by_slug = load_webcam_sources()
     page_urls = {p["url"].rstrip("/") for p in pages}
     content_by_url = {}
     for page in pages:
@@ -672,7 +708,7 @@ def main():
     shutil.copy(ROOT / "assets" / "styles.css", ASSETS_OUT / "styles.css")
     shutil.copy(ROOT / "assets" / "app.js", ASSETS_OUT / "app.js")
 
-    (DIST / "index.html").write_text(build_home(pages, content_by_url, resources_by_url), encoding="utf-8")
+    (DIST / "index.html").write_text(build_home(pages, content_by_url, resources_by_url, webcam_sources_by_slug), encoding="utf-8")
     for page in pages:
         if page["slug"] == "national-park-webcam-home":
             continue
@@ -682,6 +718,7 @@ def main():
             content_by_url[page["url"]],
             resources_by_url[page["url"]],
             page_urls,
+            webcam_sources_by_slug.get(page["slug"], []),
         )
         (PAGES_OUT / f"{page['slug']}.html").write_text(html_out, encoding="utf-8")
     print(f"Built {len(pages)} pages into {DIST}")

@@ -717,6 +717,19 @@ h3 {
   aspect-ratio: 4 / 3;
 }
 
+.webcam-image-link {
+  display: block;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: #dbe4dc;
+}
+
+.webcam-image-link img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 .embed-meta {
   padding: 15px;
 }

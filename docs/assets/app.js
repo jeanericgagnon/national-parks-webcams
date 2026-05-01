@@ -171,6 +171,17 @@ if (mapEl && mapDataEl && window.L) {
 }
 
 const weatherSection = document.querySelector(".weather-section[data-lat][data-lng]");
+const refreshImages = Array.from(document.querySelectorAll("img[data-refresh-src]"));
+
+if (refreshImages.length) {
+  window.setInterval(() => {
+    const cacheBust = Date.now();
+    for (const image of refreshImages) {
+      const base = image.dataset.refreshSrc;
+      image.src = `${base}${base.includes("?") ? "&" : "?"}t=${cacheBust}`;
+    }
+  }, 60000);
+}
 
 const formatTemp = (value, unit) => {
   if (value === null || value === undefined) return "";
