@@ -263,24 +263,32 @@ def live_embed_count(embeds):
     return sum(1 for embed in embeds if not is_map_embed(embed))
 
 
+def section_has_body(section):
+    return any(not line.startswith("Image:") for line in section["paragraphs"])
+
+
 def text_to_html(body):
-    out = []
-    opened = False
+    sections = []
+    current = {"title": "", "paragraphs": []}
     for line in body:
         if line.startswith("Image:"):
             continue
         if line in SECTION_TITLES or (len(line) <= 46 and not line.endswith((".", ",")) and len(line.split()) <= 7):
-            if opened:
-                out.append("</section>")
-            out.append(f'<section class="content-section"><h2>{html.escape(line)}</h2>')
-            opened = True
+            if current["title"] or section_has_body(current):
+                sections.append(current)
+            current = {"title": line, "paragraphs": []}
         else:
-            if not opened:
-                out.append('<section class="content-section lead-section">')
-                opened = True
-            out.append(f"<p>{html.escape(line)}</p>")
-    if opened:
-        out.append("</section>")
+            current["paragraphs"].append(line)
+    if current["title"] or section_has_body(current):
+        sections.append(current)
+
+    out = []
+    for section in sections:
+        if not section_has_body(section):
+            continue
+        heading = f"<h2>{html.escape(section['title'])}</h2>" if section["title"] else ""
+        paragraphs = "".join(f"<p>{html.escape(line)}</p>" for line in section["paragraphs"])
+        out.append(f'<section class="content-section">{heading}{paragraphs}</section>')
     return "\n".join(out)
 
 
@@ -291,6 +299,7 @@ def youtube_id(url):
 
 def render_embed_cards(embeds):
     cards = []
+    missing = []
     for embed in embeds:
         url = embed["url"]
         label = html.escape(embed["label"])
@@ -315,14 +324,22 @@ def render_embed_cards(embeds):
                 """
             )
         elif url.startswith("google-sites-frame:"):
-            cards.append(
-                f"""
-                <article class="embed-card missing-src">
-                  <div class="missing-icon">Embed</div>
-                  <div class="embed-meta"><span>Hidden Google Sites embed</span><strong>{label}</strong><p>The published page confirms this embed exists, but Google Sites does not expose its direct source in static HTML.</p></div>
-                </article>
-                """
-            )
+            missing.append((label, html.escape(url.replace("google-sites-frame:", ""))))
+    if missing:
+        items = "".join(f"<li><strong>{label}</strong><code>{identifier}</code></li>" for label, identifier in missing)
+        cards.append(
+            f"""
+            <article class="source-needed-card">
+              <span class="eyebrow">Source needed</span>
+              <h3>{len(missing)} Google Sites embed{'' if len(missing) == 1 else 's'} to replace</h3>
+              <p>These existed on the original page, but Google Sites only exposes them through a non-portable runtime wrapper. They should be replaced with direct NPS, YouTube, weather, or camera-provider URLs.</p>
+              <details>
+                <summary>Show captured embed IDs</summary>
+                <ul>{items}</ul>
+              </details>
+            </article>
+            """
+        )
     return "\n".join(cards)
 
 
@@ -336,12 +353,66 @@ def render_link_list(links):
     return "\n".join(items)
 
 
+def clean_embed_label(label):
+    return label.replace("YouTube Video, ", "").strip()
+
+
+def popular_streams(resources_by_url, pages):
+    preferred = [
+        "katmai-webcam",
+        "yellowstone-webcam",
+        "yosemite-webcam",
+        "grand-tetons-webcam",
+    ]
+    by_slug = {page["slug"]: page for page in pages}
+    streams = []
+    for slug in preferred:
+        page = by_slug.get(slug)
+        if not page:
+            continue
+        for item in resources_by_url[page["url"]]:
+            if item["type"] == "embed" and "youtube.com/embed/" in item["url"]:
+                streams.append(
+                    {
+                        "park": short_name(page["title"]),
+                        "label": clean_embed_label(clean_title(item["label"])),
+                        "url": item["url"],
+                        "href": f"parks/{page['slug']}.html",
+                    }
+                )
+                break
+    return streams
+
+
+def render_popular_streams(streams):
+    cards = []
+    for stream in streams[:4]:
+        video_id = youtube_id(stream["url"])
+        thumbnail = f"https://i.ytimg.com/vi/{video_id}/hqdefault.jpg" if video_id else ""
+        image = (
+            f'<img src="{html.escape(thumbnail)}" alt="" loading="eager" onerror="this.closest(\'.hero-stream-card\').classList.add(\'image-missing\'); this.remove();">'
+            if thumbnail
+            else ""
+        )
+        cards.append(
+            f"""
+            <article class="hero-stream-card">
+              <a href="{html.escape(stream['href'])}">
+                <div class="hero-stream-thumb">{image}<span class="play-badge">Live</span></div>
+                <span>{html.escape(stream['park'])}</span>
+                <strong>{html.escape(stream['label'])}</strong>
+              </a>
+            </article>
+            """
+        )
+    return "\n".join(cards)
+
+
 def render_nav(pages, current_slug, depth):
     prefix = "" if depth == 0 else "../"
     links = [
         f'<a href="{prefix}index.html">Home</a>',
         f'<a href="{prefix}index.html#parks">Parks</a>',
-        f'<a href="{prefix}resources.html">Resources</a>',
     ]
     if current_slug not in {"national-park-webcam-home", "resources"}:
         current = next((p for p in pages if p["slug"] == current_slug), None)
@@ -362,6 +433,7 @@ def short_name(title):
 def page_shell(title, body, page_slug, pages, description, image="", depth=0):
     prefix = "" if depth == 0 else "../"
     image_meta = f'<meta property="og:image" content="{html.escape(image)}">' if image else ""
+    data_attrs = f' data-page-slug="{html.escape(page_slug)}" data-page-title="{html.escape(title)}" data-page-depth="{depth}"'
     return f"""<!doctype html>
 <html lang="en">
 <head>
@@ -375,16 +447,18 @@ def page_shell(title, body, page_slug, pages, description, image="", depth=0):
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <link rel="stylesheet" href="{prefix}assets/styles.css">
 </head>
-<body>
+<body{data_attrs}>
   <header class="site-header">
     <a class="brand" href="{prefix}index.html"><span class="brand-mark">NP</span><span>National Parks Webcams</span></a>
     <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav">Menu</button>
-    <nav class="site-nav" id="site-nav">{render_nav(pages, page_slug, depth)}</nav>
+    <div class="header-nav-group">
+      <nav class="recent-parks" id="recent-parks" aria-label="Recently viewed parks"></nav>
+      <nav class="site-nav" id="site-nav">{render_nav(pages, page_slug, depth)}</nav>
+    </div>
   </header>
   {body}
   <footer class="site-footer">
     <p>Remade from the original National Parks Webcams Google Site. Content and links are preserved for migration review.</p>
-    <a href="{prefix}resources.html">Resource inventory</a>
   </footer>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="{prefix}assets/app.js"></script>
@@ -426,6 +500,7 @@ def build_home(pages, content_by_url, resources_by_url):
     hero_image = first_image(resources_by_url[hero_source["url"]]) or first_image(resources_by_url[home["url"]])
     description = intro_from_body(home_body)
     page_urls = {p["url"].rstrip("/") for p in pages}
+    hero_streams = popular_streams(resources_by_url, park_pages)
     map_points = []
     for page in park_pages:
         links, embeds, _ = resource_groups(resources_by_url[page["url"]], page_urls)
@@ -456,17 +531,16 @@ def build_home(pages, content_by_url, resources_by_url):
         <p>{html.escape(description)}</p>
         <div class="hero-actions">
           <a class="button primary" href="#parks">Find live cams</a>
-          <a class="button secondary" href="resources.html">View resources</a>
         </div>
       </div>
-      <div class="hero-photo">
-        <img src="{html.escape(hero_image)}" alt="" loading="eager" onerror="this.parentElement.classList.add('image-missing'); this.remove();">
+      <div class="hero-streams" aria-label="Popular live streams">
+        {render_popular_streams(hero_streams)}
       </div>
     </section>
     <section class="stats-band" aria-label="Site inventory">
       <div><strong>{len(park_pages)}</strong><span>park pages</span></div>
       <div><strong>{sum(live_embed_count(resource_groups(resources_by_url[p['url']], page_urls)[1]) for p in park_pages)}</strong><span>live cam sources</span></div>
-      <div><strong>{sum(p['link_count'] for p in pages)}</strong><span>preserved links</span></div>
+      <div><strong>1</strong><span>interactive park map</span></div>
     </section>
     <section class="park-browser" id="parks">
       <div class="section-heading">
@@ -510,6 +584,8 @@ def build_park_page(page, pages, content, resources, page_urls):
     cam_count = live_embed_count(embeds)
     hero = first_image(resources)
     intro = intro_from_body(body)
+    coords = PARK_COORDS.get(page["slug"], ["", ""])
+    weather_attrs = f'data-lat="{coords[0]}" data-lng="{coords[1]}"' if coords[0] != "" else ""
     hero_img_html = (
         f"""<img src="{html.escape(hero)}" alt="" loading="eager" onerror="this.parentElement.classList.add('image-missing'); this.remove();">"""
         if hero
@@ -542,6 +618,21 @@ def build_park_page(page, pages, content, resources, page_urls):
       </div>
       <div class="embed-grid">{render_embed_cards(embeds)}</div>
     </section>
+    <section class="weather-section" {weather_attrs}>
+      <div class="section-heading">
+        <div><span class="eyebrow">Current conditions</span><h2>Weather</h2></div>
+      </div>
+      <div class="weather-layout">
+        <article class="weather-card">
+          <h3>Next 12 hours</h3>
+          <div class="hourly-weather" data-weather-hourly>Loading hourly forecast...</div>
+        </article>
+        <article class="weather-card">
+          <h3>7 day outlook</h3>
+          <div class="daily-weather" data-weather-daily>Loading forecast...</div>
+        </article>
+      </div>
+    </section>
     <div class="page-layout">
       <article class="page-content">{text_to_html(body)}</article>
       <aside class="resource-panel">
@@ -566,45 +657,6 @@ def build_park_page(page, pages, content, resources, page_urls):
     return page_shell(title, body_html, page["slug"], pages, intro, hero, 1)
 
 
-def build_resources_page(pages, resources_by_url, page_urls):
-    rows = []
-    for page in pages:
-        links, embeds, images = resource_groups(resources_by_url[page["url"]], page_urls)
-        for kind, group in [("Embed", embeds), ("Image", images), ("Link", links)]:
-            for item in group:
-                url_cell = (
-                    f"<code>{html.escape(item['url'])}</code>"
-                    if item["url"].startswith("google-sites-frame:")
-                    else f"""<a href="{html.escape(item['url'])}" target="_blank" rel="noopener">{html.escape(item['url'][:90])}</a>"""
-                )
-                rows.append(
-                    f"""
-                    <tr>
-                      <td><a href="{html.escape(page_href(page))}">{html.escape(short_name(page['title']))}</a></td>
-                      <td>{kind}</td>
-                      <td>{html.escape(item['label'])}</td>
-                      <td>{url_cell}</td>
-                    </tr>
-                    """
-                )
-    body = f"""
-  <main>
-    <section class="inventory-hero">
-      <span class="eyebrow">Migration checklist</span>
-      <h1>Resource Inventory</h1>
-      <p>Every extracted page resource in one place: links, photos, maps, live videos, and hidden Google Sites custom embeds that need replacement.</p>
-    </section>
-    <section class="inventory-table-wrap">
-      <table class="inventory-table">
-        <thead><tr><th>Page</th><th>Type</th><th>Label</th><th>URL or ID</th></tr></thead>
-        <tbody>{''.join(rows)}</tbody>
-      </table>
-    </section>
-  </main>
-"""
-    return page_shell("Resource Inventory", body, "resources", pages, "Resource inventory for the National Parks Webcams migration.", "", 0)
-
-
 def main():
     pages = load_pages()
     resources_by_url = load_resources()
@@ -621,7 +673,6 @@ def main():
     shutil.copy(ROOT / "assets" / "app.js", ASSETS_OUT / "app.js")
 
     (DIST / "index.html").write_text(build_home(pages, content_by_url, resources_by_url), encoding="utf-8")
-    (DIST / "resources.html").write_text(build_resources_page(pages, resources_by_url, page_urls), encoding="utf-8")
     for page in pages:
         if page["slug"] == "national-park-webcam-home":
             continue

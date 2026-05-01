@@ -11,13 +11,15 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <link rel="stylesheet" href="assets/styles.css">
 </head>
-<body>
+<body data-page-slug="national-park-webcam-home" data-page-title="National Parks Webcams" data-page-depth="0">
   <header class="site-header">
     <a class="brand" href="index.html"><span class="brand-mark">NP</span><span>National Parks Webcams</span></a>
     <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav">Menu</button>
-    <nav class="site-nav" id="site-nav"><a href="index.html">Home</a>
-<a href="index.html#parks">Parks</a>
-<a href="resources.html">Resources</a></nav>
+    <div class="header-nav-group">
+      <nav class="recent-parks" id="recent-parks" aria-label="Recently viewed parks"></nav>
+      <nav class="site-nav" id="site-nav"><a href="index.html">Home</a>
+<a href="index.html#parks">Parks</a></nav>
+    </div>
   </header>
   
   <main>
@@ -28,17 +30,51 @@
         <p>Welcome to the National Park website. We hope you enjoy the National Parks as much as we do. We have links to our favorite hikes, campgrounds, lodging, restuarants, stores, etc. The National Park Service also provides a wage range of webcams throughout the United States Park System. These live webcams allow you to get up close to wildlife without disturbing them.</p>
         <div class="hero-actions">
           <a class="button primary" href="#parks">Find live cams</a>
-          <a class="button secondary" href="resources.html">View resources</a>
         </div>
       </div>
-      <div class="hero-photo">
-        <img src="https://lh3.googleusercontent.com/docsubipk/AP9E6xXAv2NqmiiDT-ziS351gKEJHKV74i3hHzVdU1XuLnpGuIRlpjV6269jS5sdFVx1DT65f8WXZGsuyNSYL8zzuEnOJWvG6gh3xoYLmC_AxF2IbsbF3thUUfLwlFcBeUGVPbZV08QNaGzBKTjBhMhPmTyu9bcjg7bmT81bsWL8aJal2INIRSa15OA" alt="" loading="eager" onerror="this.parentElement.classList.add('image-missing'); this.remove();">
+      <div class="hero-streams" aria-label="Popular live streams">
+        
+            <article class="hero-stream-card">
+              <a href="parks/katmai-webcam.html">
+                <div class="hero-stream-thumb"><img src="https://i.ytimg.com/vi/73-EekdVVU8/hqdefault.jpg" alt="" loading="eager" onerror="this.closest('.hero-stream-card').classList.add('image-missing'); this.remove();"><span class="play-badge">Live</span></div>
+                <span>Katmai</span>
+                <strong>Brooks Falls - Katmai National Park, Alaska 2025 powered by EXPLORE.org</strong>
+              </a>
+            </article>
+            
+
+            <article class="hero-stream-card">
+              <a href="parks/yellowstone-webcam.html">
+                <div class="hero-stream-thumb"><img src="https://i.ytimg.com/vi/BWnloy8r0qU/hqdefault.jpg" alt="" loading="eager" onerror="this.closest('.hero-stream-card').classList.add('image-missing'); this.remove();"><span class="play-badge">Live</span></div>
+                <span>Yellowstone</span>
+                <strong>🌎 LIVE Yellowstone National Park | Old Faithful | Relaxing Music</strong>
+              </a>
+            </article>
+            
+
+            <article class="hero-stream-card">
+              <a href="parks/yosemite-webcam.html">
+                <div class="hero-stream-thumb"><img src="https://i.ytimg.com/vi/5LFLhZ_h91A/hqdefault.jpg" alt="" loading="eager" onerror="this.closest('.hero-stream-card').classList.add('image-missing'); this.remove();"><span class="play-badge">Live</span></div>
+                <span>Yosemite</span>
+                <strong>🌲 Yosemite Live Webcams | Half Dome, El Capitan, Yosemite Falls, High Sierra. Relaxing Nature Escape</strong>
+              </a>
+            </article>
+            
+
+            <article class="hero-stream-card">
+              <a href="parks/grand-tetons-webcam.html">
+                <div class="hero-stream-thumb"><img src="https://i.ytimg.com/vi/XhBUrjhJm1A/hqdefault.jpg" alt="" loading="eager" onerror="this.closest('.hero-stream-card').classList.add('image-missing'); this.remove();"><span class="play-badge">Live</span></div>
+                <span>Grand Teton</span>
+                <strong>Live from Grand Teton National Park</strong>
+              </a>
+            </article>
+            
       </div>
     </section>
     <section class="stats-band" aria-label="Site inventory">
       <div><strong>37</strong><span>park pages</span></div>
       <div><strong>243</strong><span>live cam sources</span></div>
-      <div><strong>2187</strong><span>preserved links</span></div>
+      <div><strong>1</strong><span>interactive park map</span></div>
     </section>
     <section class="park-browser" id="parks">
       <div class="section-heading">
@@ -518,7 +554,6 @@
 
   <footer class="site-footer">
     <p>Remade from the original National Parks Webcams Google Site. Content and links are preserved for migration review.</p>
-    <a href="resources.html">Resource inventory</a>
   </footer>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="assets/app.js"></script>

@@ -1,5 +1,9 @@
 const toggle = document.querySelector(".nav-toggle");
 const nav = document.querySelector(".site-nav");
+const recentNav = document.querySelector("#recent-parks");
+const pageSlug = document.body.dataset.pageSlug;
+const pageTitle = document.body.dataset.pageTitle;
+const pageDepth = Number(document.body.dataset.pageDepth || "0");
 
 if (toggle && nav) {
   toggle.addEventListener("click", () => {
@@ -7,6 +11,61 @@ if (toggle && nav) {
     toggle.setAttribute("aria-expanded", String(open));
   });
 }
+
+const storageKey = "nationalParkCam.recentParks";
+const homeHref = pageDepth === 0 ? "" : "../";
+
+const getParkHref = (slug) => `${homeHref}parks/${slug}.html`;
+
+const readRecentParks = () => {
+  try {
+    return JSON.parse(localStorage.getItem(storageKey) || "[]");
+  } catch {
+    return [];
+  }
+};
+
+const writeRecentParks = (items) => {
+  localStorage.setItem(storageKey, JSON.stringify(items.slice(0, 5)));
+};
+
+const renderRecentParks = () => {
+  if (!recentNav) return;
+  const items = readRecentParks();
+  recentNav.replaceChildren();
+  if (!items.length) {
+    recentNav.hidden = true;
+    return;
+  }
+  recentNav.hidden = false;
+  const label = document.createElement("span");
+  label.textContent = "Recent";
+  recentNav.append(label);
+  for (const item of items.slice(0, 5)) {
+    const link = document.createElement("a");
+    link.href = getParkHref(item.slug);
+    link.textContent = item.shortTitle || item.title;
+    if (item.slug === pageSlug) link.setAttribute("aria-current", "page");
+    recentNav.append(link);
+  }
+};
+
+if (pageSlug && pageSlug !== "national-park-webcam-home" && pageSlug !== "resources") {
+  const shortTitle = pageTitle
+    .replace("National and State Parks Webcams", "")
+    .replace("National Parks Webcams", "")
+    .replace("National Park Webcams", "")
+    .replace("National Park", "")
+    .replace("Webcams", "")
+    .trim();
+  const nextRecent = [
+    { slug: pageSlug, title: pageTitle, shortTitle: shortTitle || pageTitle },
+    ...readRecentParks().filter((item) => item.slug !== pageSlug),
+  ];
+  writeRecentParks(nextRecent);
+}
+
+renderRecentParks();
 
 const search = document.querySelector("#park-search");
 const cards = Array.from(document.querySelectorAll(".park-card"));
@@ -109,4 +168,65 @@ if (mapEl && mapDataEl && window.L) {
       popup: false,
     });
   }
+}
+
+const weatherSection = document.querySelector(".weather-section[data-lat][data-lng]");
+
+const formatTemp = (value, unit) => {
+  if (value === null || value === undefined) return "";
+  return `${Math.round(value)}°${unit === "F" ? "F" : unit}`;
+};
+
+const renderWeatherError = (message) => {
+  document.querySelectorAll("[data-weather-hourly], [data-weather-daily]").forEach((el) => {
+    el.textContent = message;
+    el.classList.add("weather-unavailable");
+  });
+};
+
+if (weatherSection) {
+  const lat = weatherSection.dataset.lat;
+  const lng = weatherSection.dataset.lng;
+  const hourlyEl = weatherSection.querySelector("[data-weather-hourly]");
+  const dailyEl = weatherSection.querySelector("[data-weather-daily]");
+
+  fetch(`https://api.weather.gov/points/${lat},${lng}`)
+    .then((response) => {
+      if (!response.ok) throw new Error("Forecast point unavailable");
+      return response.json();
+    })
+    .then((point) =>
+      Promise.all([
+        fetch(point.properties.forecastHourly).then((response) => response.json()),
+        fetch(point.properties.forecast).then((response) => response.json()),
+      ])
+    )
+    .then(([hourly, daily]) => {
+      const hourlyItems = (hourly.properties?.periods || []).slice(0, 12);
+      const dailyItems = (daily.properties?.periods || []).filter((period) => period.isDaytime).slice(0, 7);
+
+      if (hourlyEl) {
+        hourlyEl.replaceChildren(
+          ...hourlyItems.map((period) => {
+            const item = document.createElement("div");
+            item.className = "hourly-item";
+            const time = new Date(period.startTime);
+            item.innerHTML = `<span>${time.toLocaleTimeString([], { hour: "numeric" })}</span><strong>${formatTemp(period.temperature, period.temperatureUnit)}</strong><small>${period.shortForecast}</small>`;
+            return item;
+          })
+        );
+      }
+
+      if (dailyEl) {
+        dailyEl.replaceChildren(
+          ...dailyItems.map((period) => {
+            const item = document.createElement("div");
+            item.className = "daily-item";
+            item.innerHTML = `<strong>${period.name}</strong><span>${formatTemp(period.temperature, period.temperatureUnit)}</span><p>${period.shortForecast}</p>`;
+            return item;
+          })
+        );
+      }
+    })
+    .catch(() => renderWeatherError("Weather is temporarily unavailable."));
 }
