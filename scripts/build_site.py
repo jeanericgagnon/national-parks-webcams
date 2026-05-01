@@ -316,16 +316,41 @@ def render_webcam_source_cards(webcam_sources):
         page_url = html.escape(source["page_url"])
         provider = html.escape(source["provider"])
         status = html.escape(source["status"])
-        cards.append(
-            f"""
-            <article class="embed-card webcam-image-card">
-              <a class="webcam-image-link" href="{page_url}" target="_blank" rel="noopener">
-                <img src="{url}" data-refresh-src="{url}" alt="{title}" loading="lazy" onerror="this.closest('.webcam-image-card').classList.add('image-missing'); this.remove();">
-              </a>
-              <div class="embed-meta"><span>{provider}</span><strong>{title}</strong><p>{status}</p></div>
-            </article>
-            """
-        )
+        kind = source.get("kind")
+        if kind == "iframe":
+            cards.append(
+                f"""
+                <article class="embed-card video-card">
+                  <div class="embed-frame"><iframe src="{url}" title="{title}" loading="lazy" allowfullscreen></iframe></div>
+                  <div class="embed-meta"><span>{provider}</span><strong>{title}</strong><p>{status}</p></div>
+                </article>
+                """
+            )
+        elif kind == "page":
+            cards.append(
+                f"""
+                <article class="embed-card webcam-page-card">
+                  <div class="webcam-page-cta">
+                    <span class="eyebrow">Verified live page</span>
+                    <h3>{title}</h3>
+                    <p>{status}</p>
+                    <a class="button primary" href="{page_url}" target="_blank" rel="noopener">Open live webcam</a>
+                  </div>
+                  <div class="embed-meta"><span>{provider}</span><strong>{title}</strong></div>
+                </article>
+                """
+            )
+        else:
+            cards.append(
+                f"""
+                <article class="embed-card webcam-image-card">
+                  <a class="webcam-image-link" href="{page_url}" target="_blank" rel="noopener">
+                    <img src="{url}" data-refresh-src="{url}" alt="{title}" loading="lazy" onerror="this.closest('.webcam-image-card').classList.add('image-missing'); this.remove();">
+                  </a>
+                  <div class="embed-meta"><span>{provider}</span><strong>{title}</strong><p>{status}</p></div>
+                </article>
+                """
+            )
     return cards
 
 
